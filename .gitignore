@@ -57,8 +57,9 @@ uploads/
 *.bmp
 *.tiff
 
-# Model files (large files)
+# Model files (large files) - but allow models directory
 *.pt
+!models/*.pt
 *.pth
 *.onnx
 *.tflite
