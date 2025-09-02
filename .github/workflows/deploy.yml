@@ -49,17 +49,13 @@ jobs:
         # Copy Python files
         cp *.py dist/ 2>/dev/null || echo "No Python files in root"
         
-        # Copy models directory
+        # Copy API directory
+        cp -r api dist/ 2>/dev/null || echo "No API directory"
+        
+        # Copy models if they exist
         cp -r models dist/ 2>/dev/null || echo "No models directory"
         
-        # Copy uploads directory structure
-        mkdir -p dist/uploads
-        
-        # Copy requirements.txt
-        cp requirements.txt dist/ 2>/dev/null || echo "No requirements.txt"
-        
-        # Copy README
-        cp README.md dist/ 2>/dev/null || echo "No README.md"
+
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
