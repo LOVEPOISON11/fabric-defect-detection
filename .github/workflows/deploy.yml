@@ -55,6 +55,42 @@ jobs:
         # Copy uploads directory structure
         mkdir -p dist/uploads
         
+    - name: Create static demo files
+      run: |
+        # Create a demo JavaScript file for client-side functionality
+        cat > dist/demo.js << 'EOF'
+        // Demo functionality for static deployment
+        function showStaticDemo() {
+            alert('This is a static demo. For full AI functionality, please run the application locally or deploy to a Python-supporting platform like Vercel.');
+        }
+
+        // Mock detection function for demo
+        function mockDetection() {
+            return {
+                success: true,
+                total_defects: Math.floor(Math.random() * 5),
+                detections: [
+                    { class: 'hole', confidence: 0.85, bbox: [100, 100, 200, 200] },
+                    { class: 'stain', confidence: 0.72, bbox: [300, 150, 400, 250] }
+                ],
+                defect_counts: { hole: 1, stain: 1 }
+            };
+        }
+        EOF
+
+    - name: Modify templates for static deployment
+      run: |
+        # Update index.html to work without backend
+        sed -i 's|action="/detect"|onsubmit="showStaticDemo(); return false;"|g' dist/templates/index.html || true
+        sed -i 's|method="POST"||g' dist/templates/index.html || true
+
+        # Update camera.html to work without backend
+        sed -i 's|/detect|#|g' dist/templates/camera.html || true
+
+        # Add demo script to templates
+        sed -i 's|</body>|<script src="../demo.js"></script></body>|g' dist/templates/index.html || true
+        sed -i 's|</body>|<script src="../demo.js"></script></body>|g' dist/templates/camera.html || true
+
     - name: Create GitHub Pages index
       run: |
         cat > dist/index.html << 'EOF'
@@ -73,6 +109,7 @@ jobs:
                 .feature-card { transition: transform 0.3s; }
                 .feature-card:hover { transform: translateY(-5px); }
                 .tech-badge { background: #f8f9fa; border: 1px solid #dee2e6; }
+                .deployment-section { background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0; }
             </style>
         </head>
         <body>
@@ -84,7 +121,7 @@ jobs:
                                 <i class="fas fa-microscope fa-4x text-primary mb-4"></i>
                                 <h1 class="display-4 fw-bold mb-3">🧵 Fabric Defect Detection</h1>
                                 <p class="lead mb-4">AI-powered fabric quality inspection system using YOLOv8 and computer vision</p>
-                                
+
                                 <div class="row g-4 mt-4">
                                     <div class="col-md-4">
                                         <div class="card feature-card h-100">
@@ -96,7 +133,7 @@ jobs:
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-md-4">
                                         <div class="card feature-card h-100">
                                             <div class="card-body text-center">
@@ -107,7 +144,7 @@ jobs:
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-md-4">
                                         <div class="card feature-card h-100">
                                             <div class="card-body text-center">
@@ -119,9 +156,36 @@ jobs:
                                         </div>
                                     </div>
                                 </div>
-                                
+
+                                <div class="deployment-section">
+                                    <h4><i class="fas fa-rocket text-warning"></i> Full Deployment Options</h4>
+                                    <p class="mb-3">For complete AI functionality, deploy to platforms supporting Python backends:</p>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <a href="https://vercel.com" class="btn btn-outline-dark btn-sm mb-2 w-100" target="_blank">
+                                                <i class="fas fa-external-link-alt"></i> Vercel
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="https://railway.app" class="btn btn-outline-dark btn-sm mb-2 w-100" target="_blank">
+                                                <i class="fas fa-external-link-alt"></i> Railway
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="https://render.com" class="btn btn-outline-dark btn-sm mb-2 w-100" target="_blank">
+                                                <i class="fas fa-external-link-alt"></i> Render
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="https://heroku.com" class="btn btn-outline-dark btn-sm mb-2 w-100" target="_blank">
+                                                <i class="fas fa-external-link-alt"></i> Heroku
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <hr class="my-5">
-                                
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <h4><i class="fas fa-cogs text-primary"></i> Technology Stack</h4>
@@ -134,7 +198,7 @@ jobs:
                                             <span class="badge tech-badge">Computer Vision</span>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-md-6">
                                         <h4><i class="fas fa-rocket text-success"></i> Features</h4>
                                         <ul class="list-unstyled mt-3">
@@ -145,19 +209,19 @@ jobs:
                                         </ul>
                                     </div>
                                 </div>
-                                
-                                <div class="alert alert-info mt-4">
-                                    <i class="fas fa-info-circle"></i>
-                                    <strong>Note:</strong> This is a static showcase. For full functionality with AI detection, 
-                                    deploy to a platform supporting Python backends like Vercel, Heroku, or Railway.
+
+                                <div class="alert alert-warning mt-4">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Static Demo Limitation:</strong> This GitHub Pages deployment shows the interface only.
+                                    The AI detection requires a Python backend. Click the deployment options above for full functionality.
                                 </div>
-                                
+
                                 <div class="mt-4">
                                     <a href="https://github.com/LOVEPOISON11/fabric-defect-detection" class="btn btn-primary btn-lg me-3">
                                         <i class="fab fa-github"></i> View Repository
                                     </a>
                                     <a href="templates/index.html" class="btn btn-outline-primary btn-lg">
-                                        <i class="fas fa-play"></i> Try Demo
+                                        <i class="fas fa-play"></i> Try Demo Interface
                                     </a>
                                 </div>
                             </div>
@@ -165,8 +229,9 @@ jobs:
                     </div>
                 </div>
             </div>
-            
+
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="demo.js"></script>
         </body>
         </html>
         EOF

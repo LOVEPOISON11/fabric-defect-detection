@@ -268,13 +268,27 @@
                                 method: 'POST',
                                 body: formData
                             });
-                            
+
+                            if (!response.ok) {
+                                throw new Error(`Server error: ${response.status}`);
+                            }
+
                             const data = await response.json();
                             if (data.success) {
                                 updateDetectionStats(data);
                             }
                         } catch (error) {
                             console.error('Detection error:', error);
+                            if (error.message.includes('Server error') || error.message.includes('Failed to fetch')) {
+                                // Show warning once
+                                if (!window.backendWarningShown) {
+                                    alert('⚠️ Backend Not Available\n\nCamera detection requires a Python backend. This static demo cannot process images.\n\nFor full functionality, deploy to Vercel, Railway, or run locally.');
+                                    window.backendWarningShown = true;
+                                }
+                                // Stop detection to avoid repeated errors
+                                document.getElementById('detectionToggle').checked = false;
+                                stopDetection();
+                            }
                         }
                     }, 'image/jpeg');
                     

@@ -238,6 +238,10 @@
                     body: formData
                 });
 
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
                 const data = await response.json();
 
                 if (data.success) {
@@ -260,7 +264,11 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred during detection');
+                if (error.message.includes('Server error') || error.message.includes('Failed to fetch')) {
+                    alert('⚠️ Backend Not Available\n\nThis is a static demo on GitHub Pages. For full AI detection functionality, please:\n\n1. Run locally: python app.py\n2. Deploy to Vercel, Railway, or Heroku\n3. See deployment options on the main page');
+                } else {
+                    alert('An error occurred during detection: ' + error.message);
+                }
             } finally {
                 loading.style.display = 'none';
                 detectBtn.disabled = false;
